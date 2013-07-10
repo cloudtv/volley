@@ -7,4 +7,8 @@
     <jar destfile="bin/volley.jar"
          basedir="bin/classes" />
   </target>
+  
+  <target description="bundle sources in a jar" name="package-sources">
+      <jar basedir="src" destfile="bin/volley-sources.jar"/>
+  </target>
 </project>
