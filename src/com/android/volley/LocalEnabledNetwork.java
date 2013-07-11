@@ -1,12 +1,8 @@
 package com.android.volley;
 
-import cloudtv.volley.Volley;
-
-import com.android.volley.NetworkResponse;
-import com.android.volley.Request;
-import com.android.volley.VolleyError;
 import com.android.volley.toolbox.BasicNetwork;
 import com.android.volley.toolbox.HttpStack;
+import com.android.volley.toolbox.Util;
 
 /**
  * 
@@ -22,7 +18,7 @@ public class LocalEnabledNetwork extends BasicNetwork
 
 	@Override
 	public NetworkResponse performRequest(Request<?> request) throws VolleyError {
-		if(Volley.isLocalCall(request.getUrl())) {
+		if(Util.isLocalCall(request.getUrl())) {
 			return new NetworkResponse(null);
 		} else {
 			return super.performRequest(request);

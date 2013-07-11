@@ -27,9 +27,9 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
 import android.text.TextUtils;
-import cloudtv.volley.Volley;
 
 import com.android.volley.VolleyLog.MarkerLog;
+import com.android.volley.toolbox.Util;
 
 /**
  * Base class for all network requests.
@@ -127,7 +127,7 @@ public abstract class Request<T> implements Comparable<Request<T>> {
         mErrorListener = listener;
         setRetryPolicy(new DefaultRetryPolicy());
 
-        if(Volley.isLocalCall(mUrl))
+        if(Util.isLocalCall(mUrl))
 			mDefaultTrafficStatsTag = 0;
 		else
 			mDefaultTrafficStatsTag = TextUtils.isEmpty(url) ? 0 : Uri.parse(url).getHost().hashCode();

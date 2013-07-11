@@ -19,7 +19,8 @@ package com.android.volley;
 import java.util.concurrent.BlockingQueue;
 
 import android.os.Process;
-import cloudtv.volley.Volley;
+
+import com.android.volley.toolbox.Util;
 
 /**
  * Provides a thread for performing cache triage on a queue of requests.
@@ -98,7 +99,7 @@ public class CacheDispatcher extends Thread {
                     continue;
                 }
                 // Delivering null response to process in the imageRequest
-            	if(Volley.isLocalCall(request.getUrl())) {		
+            	if(Util.isLocalCall(request.getUrl())) {		
             			request.addMarker("cache-hit");
             			Response<?> response = request.parseNetworkResponse(new NetworkResponse(null));
             			mDelivery.postResponse(request, response);
