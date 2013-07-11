@@ -30,7 +30,7 @@ public class LocalEnabledImageRequest extends ImageRequest
 	@Override
 	protected Response<Bitmap> doParse(NetworkResponse response) {
 		if(Volley.isLocalCall(getUrl())) {
-			Bitmap bitmap = Util.decodeStorageImage(getUrl(), mMaxHeight, mMaxWidth, mDecodeConfig);
+			Bitmap bitmap = Util.decodeLocalImage(getUrl(), mMaxHeight, mMaxWidth, mDecodeConfig);
 			return Response.success(bitmap, HttpHeaderParser.parseCacheHeaders(response));
 		}
 		return super.doParse(response);
