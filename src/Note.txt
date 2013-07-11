@@ -1,0 +1,44 @@
+Volley commands:
+----------------
+git remote add google https://android.googlesource.com/platform/frameworks/volley/
+git push origin HEAD:master
+git pull google master
+
+Code changes:
+-------------
+1)CacheDispatcher
+- add code at 98
+	// Delivering null response to process in the imageRequest
+	if(Volley.isLocalCall(request.getUrl())) {		
+			request.addMarker("cache-hit");
+			Response<?> response = request.parseNetworkResponse(new NetworkResponse(null));
+			mDelivery.postResponse(request, response);
+			continue;
+	}
+	
+2)ImageRequest.java to CloudtvImageLoader
+- this three member variable should be public
+	protected final Config mDecodeConfig;
+    protected final int mMaxWidth;
+    protected final int mMaxHeight;	
+	change doParse() private to protected
+
+
+3)ImageLoader.java to CloudtvImageLoader
+- change mRequestQueue, mInFlightRequests and mCache to protected
+- change BatchedImageRequest to public
+- change onGetImageSuccess, throwIfNotOnMainThread, getCacheKey and onGetImageError to protected
+- Use CoudtvImageRequest in get() insted of ImageLoader
+	
+4)Request.java
+- Change in constructor 
+- 121: 	if(Volley.isLocalCall(mUrl))
+			mDefaultTrafficStatsTag = 0;
+		else
+			mDefaultTrafficStatsTag = TextUtils.isEmpty(url) ? 0 : Uri.parse(url).getHost().hashCode();
+
+5)NetworkImageView
+- pass height and width in mImageLoader.get() call
+- NetworkImageView.java:160
+
+6)Use BasicNetwork to CloudtvNetwork in Volley
