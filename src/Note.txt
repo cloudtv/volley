@@ -4,6 +4,12 @@ git remote add google https://android.googlesource.com/platform/frameworks/volle
 git push origin HEAD:master
 git pull google master
 
+to Keep in mind:
+----------------
+1) make it easy to understand what changes we made 
+2) make it easy to merge changes in upstream 
+3) stop us from missing changes upstream
+
 Code changes:
 -------------
 1)CacheDispatcher
