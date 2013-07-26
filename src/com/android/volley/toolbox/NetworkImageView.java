@@ -16,6 +16,7 @@
 package com.android.volley.toolbox;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.ViewGroup.LayoutParams;
@@ -121,6 +122,9 @@ public class NetworkImageView extends ImageView {
                 mImageContainer = null;
             }
             setImageBitmap(null);
+            if(mImageLoadedListener != null){
+            	mImageLoadedListener.onImageLoaded();
+            }
             return;
         }
 
@@ -128,11 +132,17 @@ public class NetworkImageView extends ImageView {
         if (mImageContainer != null && mImageContainer.getRequestUrl() != null) {
             if (mImageContainer.getRequestUrl().equals(mUrl)) {
                 // if the request is from the same URL, return.
+            	 if(mImageLoadedListener != null){
+            		 mImageLoadedListener.onImageLoaded();
+                 }
                 return;
             } else {
                 // if there is a pre-existing request, cancel it if it's fetching a different URL.
                 mImageContainer.cancelRequest();
                 setImageBitmap(null);
+                if(mImageLoadedListener != null){
+                	mImageLoadedListener.onImageLoaded();
+                }
             }
         }
 
@@ -165,8 +175,14 @@ public class NetworkImageView extends ImageView {
 
                         if (response.getBitmap() != null) {
                             setImageBitmap(response.getBitmap());
+                            if(mImageLoadedListener != null){
+                            	mImageLoadedListener.onImageLoaded();
+                            }
                         } else if (mDefaultImageId != 0) {
                             setImageResource(mDefaultImageId);
+                            if(mImageLoadedListener != null){
+                            	mImageLoadedListener.onImageLoaded();
+                            }
                         }
                     }
                 }, getWidth(), getHeight());
@@ -198,5 +214,14 @@ public class NetworkImageView extends ImageView {
     protected void drawableStateChanged() {
         super.drawableStateChanged();
         invalidate();
+    }
+    
+    protected OnImageLoadedListener mImageLoadedListener;
+    public void setOnImageLoadedListener(OnImageLoadedListener listener){
+    	mImageLoadedListener = listener;
+    }
+    
+    public interface OnImageLoadedListener{
+    	public void onImageLoaded();
     }
 }
