@@ -48,3 +48,5 @@ Code changes:
 - NetworkImageView.java:160
 
 6)Use BasicNetwork to CloudtvNetwork in Volley
+
+7)Add cancleRequest to the bottom of the NetworImageView 
