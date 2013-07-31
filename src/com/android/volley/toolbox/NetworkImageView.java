@@ -119,8 +119,8 @@ public class NetworkImageView extends ImageView
 				mImageContainer = null;
 			}
 			setImageBitmap(null);
-			if(mImageLoadedListener != null) {
-				mImageLoadedListener.onImageLoaded();
+			if(mImageListener != null) {
+				mImageListener.onImageRemoved();
 			}
 			return;
 		}
@@ -129,16 +129,13 @@ public class NetworkImageView extends ImageView
 		if(mImageContainer != null && mImageContainer.getRequestUrl() != null) {
 			if(mImageContainer.getRequestUrl().equals(mUrl)) {
 				// if the request is from the same URL, return.
-				if(mImageLoadedListener != null) {
-					mImageLoadedListener.onImageLoaded();
-				}
 				return;
 			} else {
 				// if there is a pre-existing request, cancel it if it's fetching a different URL.
 				mImageContainer.cancelRequest();
 				setImageBitmap(null);
-				if(mImageLoadedListener != null) {
-					mImageLoadedListener.onImageLoaded();
+				if(mImageListener != null) {
+					mImageListener.onError(new Exception("Image Removed"));
 				}
 			}
 		}
@@ -171,17 +168,17 @@ public class NetworkImageView extends ImageView
 
 				if(response.getBitmap() != null) {
 					setImageBitmap(response.getBitmap());
-					if(mImageLoadedListener != null) {
-						mImageLoadedListener.onImageLoaded();
+					if(mImageListener != null) {
+						mImageListener.onImageLoaded();
 					}
 				} else if(mDefaultImageId != 0) {
 					setImageResource(mDefaultImageId);
-					if(mImageLoadedListener != null) {
-						mImageLoadedListener.onImageLoaded();
+					if(mImageListener != null) {
+						mImageListener.onError(new Exception("Defaule Image"));
 					}
 				}
 			}
-		}, getWidth(), getHeight());
+		}, getWidth(), getHeight(), mImageListener);
 
 		// update the ImageContainer to be the new bitmap container.
 		mImageContainer = newContainer;
@@ -219,15 +216,19 @@ public class NetworkImageView extends ImageView
 		}
 	}
 
-	protected OnImageLoadedListener mImageLoadedListener;
+	protected OnImageLoadListener mImageListener;
 
-	public void setOnImageLoadedListener(OnImageLoadedListener listener) {
-		mImageLoadedListener = listener;
+	public void setOnImageLoadedListener(OnImageLoadListener listener) {
+		mImageListener = listener;
 	}
 
-	public interface OnImageLoadedListener
+	public interface OnImageLoadListener
 	{
 		public void onImageLoaded();
+
+		public void onImageRemoved();
+
+		public void onError(Exception error);
 	}
 
 }

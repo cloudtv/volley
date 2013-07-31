@@ -24,6 +24,7 @@ import com.android.volley.Response.ErrorListener;
 import com.android.volley.Response.Listener;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageRequest;
+import com.android.volley.toolbox.NetworkImageView.OnImageLoadListener;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -171,8 +172,8 @@ public class ImageLoader
 	 * @param defaultImage
 	 *            Optional default image to return until the actual image is loaded.
 	 */
-	public ImageContainer get(String requestUrl, final ImageListener listener) {
-		return get(requestUrl, listener, 0, 0);
+	public ImageContainer get(String requestUrl, final ImageListener listener, OnImageLoadListener imageLoadListener) {
+		return get(requestUrl, listener, 0, 0, imageLoadListener);
 	}
 
 	/**
@@ -191,7 +192,8 @@ public class ImageLoader
 	 * @return A container object that contains all of the properties of the request, as well as the currently available
 	 *         image (default if remote is not loaded).
 	 */
-	public ImageContainer get(String requestUrl, ImageListener imageListener, int maxWidth, int maxHeight) {
+	public ImageContainer get(String requestUrl, ImageListener imageListener, int maxWidth, int maxHeight,
+			OnImageLoadListener imageLoadListener) {
 		// only fulfill requests that were initiated from the main thread.
 		throwIfNotOnMainThread();
 
@@ -222,14 +224,15 @@ public class ImageLoader
 
 		// The request is not already in flight. Send the new request to the network and
 		// track it.
-		Request<?> newRequest = getImageRequest(requestUrl, cacheKey, maxWidth, maxHeight);
+		Request<?> newRequest = getImageRequest(requestUrl, cacheKey, maxWidth, maxHeight, imageLoadListener);
 
 		mRequestQueue.add(newRequest);
 		mInFlightRequests.put(cacheKey, new BatchedImageRequest(newRequest, imageContainer));
 		return imageContainer;
 	}
 
-	public Request<?> getImageRequest(String requestUrl, final String cacheKey, final int maxWidth, final int maxHeight) {
+	public Request<?> getImageRequest(String requestUrl, final String cacheKey, final int maxWidth,
+			final int maxHeight, final OnImageLoadListener imageLoadListener) {
 		return new ImageRequest(requestUrl, new Listener<Bitmap>() {
 			@Override
 			public void onResponse(Bitmap response) {
@@ -239,6 +242,8 @@ public class ImageLoader
 			@Override
 			public void onErrorResponse(VolleyError error) {
 				onGetImageError(cacheKey, error);
+				if(imageLoadListener != null)
+					imageLoadListener.onError(error);
 			}
 		});
 	}
