@@ -119,9 +119,6 @@ public class NetworkImageView extends ImageView
 				mImageContainer = null;
 			}
 			setImageBitmap(null);
-			if(mImageLoadedListener != null) {
-				mImageLoadedListener.onImageLoaded();
-			}
 			return;
 		}
 
@@ -129,17 +126,11 @@ public class NetworkImageView extends ImageView
 		if(mImageContainer != null && mImageContainer.getRequestUrl() != null) {
 			if(mImageContainer.getRequestUrl().equals(mUrl)) {
 				// if the request is from the same URL, return.
-				if(mImageLoadedListener != null) {
-					mImageLoadedListener.onImageLoaded();
-				}
 				return;
 			} else {
 				// if there is a pre-existing request, cancel it if it's fetching a different URL.
 				mImageContainer.cancelRequest();
 				setImageBitmap(null);
-				if(mImageLoadedListener != null) {
-					mImageLoadedListener.onImageLoaded();
-				}
 			}
 		}
 
