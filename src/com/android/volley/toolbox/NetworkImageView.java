@@ -18,6 +18,7 @@ import android.util.AttributeSet;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.ImageView;
 
+import com.android.volley.DefaultImageError;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader.ImageContainer;
 import com.android.volley.toolbox.ImageLoader.ImageListener;
@@ -135,7 +136,7 @@ public class NetworkImageView extends ImageView
 				mImageContainer.cancelRequest();
 				setImageBitmap(null);
 				if(mImageListener != null) {
-					mImageListener.onError(new Exception("Image Removed"));
+					mImageListener.onImageRemoved();
 				}
 			}
 		}
@@ -174,7 +175,7 @@ public class NetworkImageView extends ImageView
 				} else if(mDefaultImageId != 0) {
 					setImageResource(mDefaultImageId);
 					if(mImageListener != null) {
-						mImageListener.onError(new Exception("Defaule Image"));
+						mImageListener.onError(new DefaultImageError());
 					}
 				}
 			}
@@ -228,7 +229,7 @@ public class NetworkImageView extends ImageView
 
 		public void onImageRemoved();
 
-		public void onError(Exception error);
+		public void onError(VolleyError error);
 	}
 
 }
