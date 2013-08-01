@@ -9,6 +9,7 @@ import com.android.volley.Response.ErrorListener;
 import com.android.volley.Response.Listener;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
+import com.android.volley.toolbox.NetworkImageView.OnImageLoadListener;
 
 /**
  * To provide local enable image provider
@@ -24,7 +25,8 @@ public class LocalEnabledImageLoader extends ImageLoader
 	}
 
 	@Override
-	public Request<?> getImageRequest(String requestUrl, final String cacheKey, int maxWidth, int maxHeight) {
+	public Request<?> getImageRequest(String requestUrl, final String cacheKey, int maxWidth, int maxHeight,
+			final OnImageLoadListener imageLoadListener) {
 
 		return new LocalEnabledImageRequest(requestUrl, new Listener<Bitmap>() {
 			@Override
@@ -35,6 +37,9 @@ public class LocalEnabledImageLoader extends ImageLoader
 			@Override
 			public void onErrorResponse(VolleyError error) {
 				onGetImageError(cacheKey, error);
+				if(imageLoadListener != null) {
+					imageLoadListener.onError(error);
+				}
 			}
 		});
 	}
