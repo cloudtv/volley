@@ -120,6 +120,7 @@ public class NetworkImageView extends ImageView
 				mImageContainer = null;
 			}
 			setImageBitmap(null);
+
 			if(mImageListener != null) {
 				mImageListener.onImageRemoved();
 			}
@@ -135,6 +136,7 @@ public class NetworkImageView extends ImageView
 				// if there is a pre-existing request, cancel it if it's fetching a different URL.
 				mImageContainer.cancelRequest();
 				setImageBitmap(null);
+				
 				if(mImageListener != null) {
 					mImageListener.onImageRemoved();
 				}
