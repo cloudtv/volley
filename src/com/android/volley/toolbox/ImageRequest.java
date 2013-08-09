@@ -142,6 +142,10 @@ public class ImageRequest extends Request<Bitmap> {
             decodeOptions.inPreferredConfig = mDecodeConfig;
             bitmap = BitmapFactory.decodeByteArray(data, 0, data.length, decodeOptions);
         } else {
+        	// not sure why this wasn't there in the firt place -mc
+        	decodeOptions.inPurgeable = true;
+        	decodeOptions.inInputShareable = true;
+        	
             // If we have to resize this image, first get the natural bounds.
             decodeOptions.inJustDecodeBounds = true;
             BitmapFactory.decodeByteArray(data, 0, data.length, decodeOptions);

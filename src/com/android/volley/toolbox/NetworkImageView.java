@@ -12,6 +12,8 @@
  */
 package com.android.volley.toolbox;
 
+import java.lang.ref.WeakReference;
+
 import android.content.Context;
 import android.text.TextUtils;
 import android.util.AttributeSet;
@@ -145,46 +147,65 @@ public class NetworkImageView extends ImageView
 
 		// The pre-existing content of this view didn't match the current URL. Load the new image
 		// from the network.
-		ImageContainer newContainer = mImageLoader.get(mUrl, new ImageListener() {
-			@Override
-			public void onErrorResponse(VolleyError error) {
-				if(mErrorImageId != 0) {
-					setImageResource(mErrorImageId);
-				}
-			}
-
-			@Override
-			public void onResponse(final ImageContainer response, boolean isImmediate) {
-				// If this was an immediate response that was delivered inside of a layout
-				// pass do not set the image immediately as it will trigger a requestLayout
-				// inside of a layout. Instead, defer setting the image by posting back to
-				// the main thread.
-				if(isImmediate && isInLayoutPass) {
-					post(new Runnable() {
-						@Override
-						public void run() {
-							onResponse(response, false);
-						}
-					});
-					return;
-				}
-
-				if(response.getBitmap() != null) {
-					setImageBitmap(response.getBitmap());
-					if(mImageListener != null) {
-						mImageListener.onImageLoaded();
-					}
-				} else if(mDefaultImageId != 0) {
-					setImageResource(mDefaultImageId);
-					if(mImageListener != null) {
-						mImageListener.onError(new DefaultImageError());
-					}
-				}
-			}
-		}, getWidth(), getHeight(), mImageListener);
+		ImageContainer newContainer = mImageLoader.get(mUrl, new LoadImageListener(this, isInLayoutPass), 
+				getWidth(), getHeight(), mImageListener);
 
 		// update the ImageContainer to be the new bitmap container.
 		mImageContainer = newContainer;
+	}
+	
+	protected static class LoadImageListener implements ImageListener{
+		protected WeakReference<NetworkImageView> mmParent;
+		protected WeakReference<Boolean> mmIsInLayoutPass;
+		
+		public LoadImageListener(NetworkImageView parent, boolean isInLayoutPass){
+			mmParent = new WeakReference<NetworkImageView>(parent);
+			mmIsInLayoutPass = new WeakReference<Boolean>(isInLayoutPass);
+		}
+		
+		@Override
+		public void onErrorResponse(VolleyError error) {
+			NetworkImageView parent = mmParent.get();
+			if(parent == null) return;
+			
+			if(parent.mErrorImageId != 0) {
+				parent.setImageResource(parent.mErrorImageId);
+			}
+		}
+
+		@Override
+		public void onResponse(final ImageContainer response, boolean isImmediate) {
+			NetworkImageView parent = mmParent.get();
+			if(parent == null) return;
+			Boolean isInLayoutPass = mmIsInLayoutPass.get();
+			if(isInLayoutPass == null) return;
+			
+			// If this was an immediate response that was delivered inside of a layout
+			// pass do not set the image immediately as it will trigger a requestLayout
+			// inside of a layout. Instead, defer setting the image by posting back to
+			// the main thread.
+			if(isImmediate && isInLayoutPass) {
+				parent.post(new Runnable() {
+					@Override
+					public void run() {
+						onResponse(response, false);
+					}
+				});
+				return;
+			}
+
+			if(response.getBitmap() != null) {
+				parent.setImageBitmap(response.getBitmap());
+				if(parent.mImageListener != null) {
+					parent.mImageListener.onImageLoaded();
+				}
+			} else if(parent.mDefaultImageId != 0) {
+				parent.setImageResource(parent.mDefaultImageId);
+				if(parent.mImageListener != null) {
+					parent.mImageListener.onError(new DefaultImageError());
+				}
+			}
+		}
 	}
 
 	@Override

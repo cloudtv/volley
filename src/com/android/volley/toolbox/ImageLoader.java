@@ -26,6 +26,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageRequest;
 import com.android.volley.toolbox.NetworkImageView.OnImageLoadListener;
 
+import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.LinkedList;
 
@@ -203,13 +204,13 @@ public class ImageLoader
 		Bitmap cachedBitmap = mCache.getBitmap(cacheKey);
 		if(cachedBitmap != null) {
 			// Return the cached bitmap.
-			ImageContainer container = new ImageContainer(cachedBitmap, requestUrl, null, null);
+			ImageContainer container = new ImageContainer(this, cachedBitmap, requestUrl, null, null);
 			imageListener.onResponse(container, true);
 			return container;
 		}
 
 		// The bitmap did not exist in the cache, fetch it!
-		ImageContainer imageContainer = new ImageContainer(null, requestUrl, cacheKey, imageListener);
+		ImageContainer imageContainer = new ImageContainer(this, null, requestUrl, cacheKey, imageListener);
 
 		// Update the caller to let them know that they should use the default bitmap.
 		imageListener.onResponse(imageContainer, true);
@@ -306,8 +307,10 @@ public class ImageLoader
 	/**
 	 * Container object for all of the data surrounding an image request.
 	 */
-	public class ImageContainer
+	public static class ImageContainer
 	{
+		protected WeakReference<ImageLoader> mmParent;
+		
 		/**
 		 * The most relevant bitmap for the container. If the image was in cache, the Holder to use for the final bitmap
 		 * (the one that pairs to the requested URL).
@@ -332,7 +335,8 @@ public class ImageLoader
 		 * @param cacheKey
 		 *            The cache key that identifies the requested URL for this container.
 		 */
-		public ImageContainer(Bitmap bitmap, String requestUrl, String cacheKey, ImageListener listener) {
+		public ImageContainer(ImageLoader parent, Bitmap bitmap, String requestUrl, String cacheKey, ImageListener listener) {
+			mmParent = new WeakReference<ImageLoader>(parent);
 			mBitmap = bitmap;
 			mRequestUrl = requestUrl;
 			mCacheKey = cacheKey;
@@ -346,20 +350,24 @@ public class ImageLoader
 			if(mListener == null) {
 				return;
 			}
+			ImageLoader parent = mmParent.get();
+			if(parent == null){
+				return;
+			}
 
-			BatchedImageRequest request = mInFlightRequests.get(mCacheKey);
+			BatchedImageRequest request = parent.mInFlightRequests.get(mCacheKey);
 			if(request != null) {
 				boolean canceled = request.removeContainerAndCancelIfNecessary(this);
 				if(canceled) {
-					mInFlightRequests.remove(mCacheKey);
+					parent.mInFlightRequests.remove(mCacheKey);
 				}
 			} else {
 				// check to see if it is already batched for delivery.
-				request = mBatchedResponses.get(mCacheKey);
+				request = parent.mBatchedResponses.get(mCacheKey);
 				if(request != null) {
 					request.removeContainerAndCancelIfNecessary(this);
 					if(request.mContainers.size() == 0) {
-						mBatchedResponses.remove(mCacheKey);
+						parent.mBatchedResponses.remove(mCacheKey);
 					}
 				}
 			}
@@ -384,7 +392,7 @@ public class ImageLoader
 	 * Wrapper class used to map a Request to the set of active ImageContainer objects that are interested in its
 	 * results.
 	 */
-	public class BatchedImageRequest
+	public static class BatchedImageRequest
 	{
 		/** The request being tracked */
 		private final Request<?> mRequest;
