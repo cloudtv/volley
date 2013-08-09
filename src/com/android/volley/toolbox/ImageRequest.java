@@ -138,14 +138,15 @@ public class ImageRequest extends Request<Bitmap> {
         byte[] data = response.data;
         BitmapFactory.Options decodeOptions = new BitmapFactory.Options();
         Bitmap bitmap = null;
+        
+        // not sure why this wasn't there in the firt place -mc
+        decodeOptions.inPurgeable = true;
+        decodeOptions.inInputShareable = true;
+        
         if (mMaxWidth == 0 && mMaxHeight == 0) {
             decodeOptions.inPreferredConfig = mDecodeConfig;
             bitmap = BitmapFactory.decodeByteArray(data, 0, data.length, decodeOptions);
         } else {
-        	// not sure why this wasn't there in the firt place -mc
-        	decodeOptions.inPurgeable = true;
-        	decodeOptions.inInputShareable = true;
-        	
             // If we have to resize this image, first get the natural bounds.
             decodeOptions.inJustDecodeBounds = true;
             BitmapFactory.decodeByteArray(data, 0, data.length, decodeOptions);
