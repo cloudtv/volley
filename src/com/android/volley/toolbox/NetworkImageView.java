@@ -33,7 +33,7 @@ import com.android.volley.toolbox.ImageLoader.ImageListener;
 public class NetworkImageView extends ImageView
 {
 	/** The URL of the network image to load */
-	private String mUrl;
+	protected String mUrl;
 
 	/**
 	 * Resource ID of the image to be used as a placeholder until the network image is loaded.
@@ -46,7 +46,7 @@ public class NetworkImageView extends ImageView
 	private int mErrorImageId;
 
 	/** Local copy of the ImageLoader. */
-	private ImageLoader mImageLoader;
+	protected ImageLoader mImageLoader;
 
 	/** Current ImageContainer. (either in-flight or finished) */
 	private ImageContainer mImageContainer;
@@ -151,11 +151,15 @@ public class NetworkImageView extends ImageView
 
 		// The pre-existing content of this view didn't match the current URL. Load the new image
 		// from the network.
-		ImageContainer newContainer = mImageLoader.get(mUrl, new LoadImageListener(this, isInLayoutPass), getWidth(),
-				getHeight(), mImageListener);
+		ImageContainer newContainer = getContainer(isInLayoutPass);
 
 		// update the ImageContainer to be the new bitmap container.
 		mImageContainer = newContainer;
+	}
+
+	protected ImageContainer getContainer(boolean isInLayoutPass) {
+		return mImageLoader.get(mUrl, new LoadImageListener(this, isInLayoutPass), getWidth(), getHeight(),
+				mImageListener);
 	}
 
 	protected static class LoadImageListener implements ImageListener

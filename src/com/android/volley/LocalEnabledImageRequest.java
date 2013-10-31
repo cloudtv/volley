@@ -5,7 +5,6 @@ import android.graphics.Bitmap.Config;
 
 import com.android.volley.Response.ErrorListener;
 import com.android.volley.Response.Listener;
-import com.android.volley.toolbox.HttpHeaderParser;
 import com.android.volley.toolbox.ImageRequest;
 import com.android.volley.toolbox.Util;
 
@@ -27,7 +26,7 @@ public class LocalEnabledImageRequest extends ImageRequest
 	protected Response<Bitmap> doParse(NetworkResponse response) {
 		if(Util.isLocalCall(getUrl())) {
 			Bitmap bitmap = Util.decodeStorageImage(getUrl(), mMaxHeight, mMaxWidth, mDecodeConfig);
-			return Response.success(bitmap, HttpHeaderParser.parseCacheHeaders(response));
+			return Response.success(bitmap, getEntry(response));
 		}
 		return super.doParse(response);
 	}

@@ -16,16 +16,17 @@
 
 package com.android.volley.toolbox;
 
+import android.graphics.Bitmap;
+import android.graphics.Bitmap.Config;
+import android.graphics.BitmapFactory;
+
+import com.android.volley.Cache.Entry;
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.NetworkResponse;
 import com.android.volley.ParseError;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyLog;
-
-import android.graphics.Bitmap;
-import android.graphics.Bitmap.Config;
-import android.graphics.BitmapFactory;
 
 /**
  * A canned request for getting an image at a given URL and calling
@@ -182,7 +183,7 @@ public class ImageRequest extends Request<Bitmap> {
         if (bitmap == null) {
             return Response.error(new ParseError(response));
         } else {
-            return Response.success(bitmap, HttpHeaderParser.parseCacheHeaders(response));
+            return Response.success(bitmap, getEntry(response));
         }
     }
 
@@ -212,5 +213,9 @@ public class ImageRequest extends Request<Bitmap> {
         }
 
         return (int) n;
+    }
+    
+    protected Entry getEntry(NetworkResponse response){
+    	return HttpHeaderParser.parseCacheHeaders(response);
     }
 }
