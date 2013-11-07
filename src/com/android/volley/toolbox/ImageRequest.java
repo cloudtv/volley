@@ -125,7 +125,11 @@ public class ImageRequest extends Request<Bitmap> {
             try {
                 return doParse(response);
             } catch (OutOfMemoryError e) {
-                VolleyLog.e("Caught OOM for %d byte image, url=%s", response.data.length, getUrl());
+            	 try{
+            		 VolleyLog.e("Caught OOM for %d byte image, url=%s", response.data.length, getUrl());
+            	 }catch(Exception e2){
+            		 e2.printStackTrace();
+            	 }
                 return Response.error(new ParseError(e));
             }
         }
