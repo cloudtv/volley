@@ -15,6 +15,7 @@ package com.android.volley.toolbox;
 import java.lang.ref.WeakReference;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.ViewGroup.LayoutParams;
@@ -32,7 +33,7 @@ import com.android.volley.toolbox.ImageLoader.ImageListener;
 public class NetworkImageView extends ImageView
 {
 	/** The URL of the network image to load */
-	private String mUrl;
+	protected String mUrl;
 
 	/**
 	 * Resource ID of the image to be used as a placeholder until the network image is loaded.
@@ -45,10 +46,12 @@ public class NetworkImageView extends ImageView
 	private int mErrorImageId;
 
 	/** Local copy of the ImageLoader. */
-	private ImageLoader mImageLoader;
+	protected ImageLoader mImageLoader;
 
 	/** Current ImageContainer. (either in-flight or finished) */
 	private ImageContainer mImageContainer;
+
+	protected boolean mIsDrawable;
 
 	public NetworkImageView(Context context) {
 		this(context, null);
@@ -78,6 +81,7 @@ public class NetworkImageView extends ImageView
 	public void setImageUrl(String url, ImageLoader imageLoader) {
 		mUrl = url;
 		mImageLoader = imageLoader;
+		mIsDrawable = false;
 		// The URL has potentially changed. See if we need to load it.
 		loadImageIfNecessary(false);
 	}
@@ -138,7 +142,7 @@ public class NetworkImageView extends ImageView
 				// if there is a pre-existing request, cancel it if it's fetching a different URL.
 				mImageContainer.cancelRequest();
 				setImageBitmap(null);
-				
+
 				if(mImageListener != null) {
 					mImageListener.onImageRemoved();
 				}
@@ -147,27 +151,33 @@ public class NetworkImageView extends ImageView
 
 		// The pre-existing content of this view didn't match the current URL. Load the new image
 		// from the network.
-		ImageContainer newContainer = mImageLoader.get(mUrl, new LoadImageListener(this, isInLayoutPass), 
-				getWidth(), getHeight(), mImageListener);
+		ImageContainer newContainer = getContainer(isInLayoutPass);
 
 		// update the ImageContainer to be the new bitmap container.
 		mImageContainer = newContainer;
 	}
-	
-	protected static class LoadImageListener implements ImageListener{
+
+	protected ImageContainer getContainer(boolean isInLayoutPass) {
+		return mImageLoader.get(mUrl, new LoadImageListener(this, isInLayoutPass), getWidth(), getHeight(),
+				mImageListener);
+	}
+
+	protected static class LoadImageListener implements ImageListener
+	{
 		protected WeakReference<NetworkImageView> mmParent;
 		protected WeakReference<Boolean> mmIsInLayoutPass;
-		
-		public LoadImageListener(NetworkImageView parent, boolean isInLayoutPass){
+
+		public LoadImageListener(NetworkImageView parent, boolean isInLayoutPass) {
 			mmParent = new WeakReference<NetworkImageView>(parent);
 			mmIsInLayoutPass = new WeakReference<Boolean>(isInLayoutPass);
 		}
-		
+
 		@Override
 		public void onErrorResponse(VolleyError error) {
 			NetworkImageView parent = mmParent.get();
-			if(parent == null) return;
-			
+			if(parent == null)
+				return;
+
 			if(parent.mErrorImageId != 0) {
 				parent.setImageResource(parent.mErrorImageId);
 			}
@@ -176,10 +186,12 @@ public class NetworkImageView extends ImageView
 		@Override
 		public void onResponse(final ImageContainer response, boolean isImmediate) {
 			NetworkImageView parent = mmParent.get();
-			if(parent == null) return;
+			if(parent == null)
+				return;
 			Boolean isInLayoutPass = mmIsInLayoutPass.get();
-			if(isInLayoutPass == null) return;
-			
+			if(isInLayoutPass == null)
+				return;
+
 			// If this was an immediate response that was delivered inside of a layout
 			// pass do not set the image immediately as it will trigger a requestLayout
 			// inside of a layout. Instead, defer setting the image by posting back to
@@ -209,9 +221,16 @@ public class NetworkImageView extends ImageView
 	}
 
 	@Override
+	public void setImageDrawable(Drawable drawable) {
+		super.setImageDrawable(drawable);
+		mIsDrawable = true;
+	}
+
+	@Override
 	protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
 		super.onLayout(changed, left, top, right, bottom);
-		loadImageIfNecessary(true);
+		if(!mIsDrawable)// to skip this method calling when we are setting image via Drawable
+			loadImageIfNecessary(true);
 	}
 
 	@Override
