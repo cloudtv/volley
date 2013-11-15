@@ -131,6 +131,9 @@ public class NetworkDispatcher extends Thread {
             } catch (Exception e) {
                 VolleyLog.e(e, "Unhandled exception %s", e.toString());
                 mDelivery.postError(request, new VolleyError(e));
+            }  catch(OutOfMemoryError oome){
+            	VolleyLog.e(oome, "OutOfMemoryError: %s", oome.toString());
+            	mDelivery.postError(request, new VolleyError(oome));
             }
         }
     }
