@@ -106,7 +106,14 @@ public class CacheDispatcher extends Thread {
             			continue;
             	}
                 // Attempt to retrieve this item from cache.
-                Cache.Entry entry = mCache.get(request.getCacheKey());
+            	Cache.Entry entry = null;
+            	try{
+            		entry = mCache.get(request.getCacheKey());
+            	} catch(OutOfMemoryError oome){
+                	VolleyLog.e(oome, "OutOfMemoryError: %s", oome.toString());
+                	mDelivery.postError(request, new VolleyError(oome));
+                }
+            	
                 if (entry == null) {
                     request.addMarker("cache-miss");
                     // Cache miss; send off to the network dispatcher.
