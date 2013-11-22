@@ -16,18 +16,20 @@
 
 package com.android.volley;
 
-import android.os.SystemClock;
-import android.util.Log;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+
+import android.os.SystemClock;
+import android.util.Log;
+import cloudtv.lib.BuildConfig;
 
 /** Logging helper class. */
 public class VolleyLog {
     public static String TAG = "Volley";
 
     public static boolean DEBUG = Log.isLoggable(TAG, Log.VERBOSE);
+//    public static boolean DEBUG =  BuildConfig.DEBUG;
 
     /**
      * Customize the log tag for your application, so that other apps
