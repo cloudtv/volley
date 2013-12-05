@@ -32,10 +32,12 @@ public class Util
 			// TODO(ficus): Do we need this or is it okay since API 8 doesn't support it?
 			// decodeOptions.inPreferQualityOverSpeed = PREFER_QUALITY_OVER_SPEED;
 			decodeOptions.inSampleSize = findBestSampleSize(actualWidth, actualHeight, desiredWidth, desiredHeight);
-			L.d("Util",
-					"decodeStorageImage-url:" + url + " desiredWidth :" + desiredWidth + " desiredHeight:"
-							+ desiredHeight + " imageSize:"
-							+ findBestSampleSize(actualWidth, actualHeight, desiredWidth, desiredHeight));
+			if(isMemoryUsageHigh())
+				if(desiredWidth > desiredHeight && desiredWidth > 1000 && decodeOptions.inSampleSize < 3) {
+					decodeOptions.inSampleSize = 3;
+				} else if(desiredHeight > 1000 && decodeOptions.inSampleSize < 2) {
+					decodeOptions.inSampleSize = 2;
+				}
 			Bitmap tempBitmap = BitmapFactory.decodeFile(url, decodeOptions);
 
 			// If necessary, scale down to the maximal acceptable size.
@@ -48,6 +50,18 @@ public class Util
 		}
 
 		return bitmap;
+	}
+
+	public static boolean isMemoryUsageHigh() {
+		int totalMemeory = (int) (Runtime.getRuntime().totalMemory() / 1024);
+		int maxMemeory = (int) (Runtime.getRuntime().maxMemory() / 1024);
+		int freeMemeory = (int) (Runtime.getRuntime().freeMemory() / 1024);
+		int targetMemory = (int) (maxMemeory * 0.6); // 60% of max memory
+		int usedMemory = totalMemeory - freeMemeory;
+		if(usedMemory > targetMemory) {
+			return true;
+		}
+		return false;
 	}
 
 	public static int findBestSampleSize(int actualWidth, int actualHeight, int desiredWidth, int desiredHeight) {
