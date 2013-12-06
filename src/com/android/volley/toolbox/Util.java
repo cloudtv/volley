@@ -5,12 +5,27 @@ import android.graphics.BitmapFactory;
 import android.graphics.Bitmap.Config;
 import cloudtv.util.L;
 
+
+/**
+ * Add by cloudtv so we can make LocalEnabledImageRequest work.
+ * 
+ * @author michaelchristoff
+ *
+ */
 public class Util
 {
 	public static Bitmap decodeStorageImage(String url, int height, int width) {
 		return decodeStorageImage(url, height, width, Config.RGB_565);
 	}
 
+	/**
+	 * Taken from ImageRequest.java:doParse():14
+	 * @param url
+	 * @param height
+	 * @param width
+	 * @param decodeConfig
+	 * @return
+	 */
 	public static Bitmap decodeStorageImage(String url, int height, int width, Config decodeConfig) {
 		BitmapFactory.Options decodeOptions = new BitmapFactory.Options();
 		Bitmap bitmap = null;
@@ -32,12 +47,16 @@ public class Util
 			// TODO(ficus): Do we need this or is it okay since API 8 doesn't support it?
 			// decodeOptions.inPreferQualityOverSpeed = PREFER_QUALITY_OVER_SPEED;
 			decodeOptions.inSampleSize = findBestSampleSize(actualWidth, actualHeight, desiredWidth, desiredHeight);
-			if(isMemoryUsageHigh())
+			
+			// added by ajit to handle OFMs with big local images on the n7
+			if(isMemoryUsageHigh()){
 				if(desiredWidth > desiredHeight && desiredWidth > 1000 && decodeOptions.inSampleSize < 3) {
 					decodeOptions.inSampleSize = 3;
 				} else if(desiredHeight > 1000 && decodeOptions.inSampleSize < 2) {
 					decodeOptions.inSampleSize = 2;
 				}
+			}
+			
 			Bitmap tempBitmap = BitmapFactory.decodeFile(url, decodeOptions);
 
 			// If necessary, scale down to the maximal acceptable size.
