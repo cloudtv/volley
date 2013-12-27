@@ -5,6 +5,13 @@ import android.graphics.BitmapFactory;
 import android.graphics.Bitmap.Config;
 import cloudtv.util.L;
 
+
+/**
+ * Add by cloudtv so we can make LocalEnabledImageRequest work.
+ * 
+ * @author michaelchristoff
+ *
+ */
 public class Util
 {
 	public static final String TAG = "Util";
@@ -13,6 +20,14 @@ public class Util
 		return decodeStorageImage(url, height, width, Config.RGB_565);
 	}
 
+	/**
+	 * Taken from ImageRequest.java:doParse():14
+	 * @param url
+	 * @param height
+	 * @param width
+	 * @param decodeConfig
+	 * @return
+	 */
 	public static Bitmap decodeStorageImage(String url, int height, int width, Config decodeConfig) {
 		BitmapFactory.Options decodeOptions = new BitmapFactory.Options();
 		Bitmap bitmap = null;
@@ -55,6 +70,18 @@ public class Util
 		}
 
 		return bitmap;
+	}
+
+	public static boolean isMemoryUsageHigh() {
+		int totalMemeory = (int) (Runtime.getRuntime().totalMemory() / 1024);
+		int maxMemeory = (int) (Runtime.getRuntime().maxMemory() / 1024);
+		int freeMemeory = (int) (Runtime.getRuntime().freeMemory() / 1024);
+		int targetMemory = (int) (maxMemeory * 0.6); // 60% of max memory
+		int usedMemory = totalMemeory - freeMemeory;
+		if(usedMemory > targetMemory) {
+			return true;
+		}
+		return false;
 	}
 
 	public static int findBestSampleSize(int actualWidth, int actualHeight, int desiredWidth, int desiredHeight) {
