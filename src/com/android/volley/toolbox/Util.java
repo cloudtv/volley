@@ -39,6 +39,7 @@ public class Util
 				sampleSize++;
 				L.i(TAG, "**** Try Handled OutOfMemory for local photos ****");
 			}
+			
 			// L.d(TAG, "[decodeStorageImage]url:" + url + " desiredWidth :" + desiredWidth + " desiredHeight:"
 			// + desiredHeight + " imageSize:" + sampleSize);
 			decodeOptions.inSampleSize = sampleSize;
