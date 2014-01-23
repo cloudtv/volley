@@ -246,7 +246,7 @@ public class DiskBasedCache implements Cache {
      * Prunes the cache to fit the amount of bytes specified.
      * @param neededSpace The amount of bytes we are trying to fit into the cache.
      */
-    private void pruneIfNeeded(int neededSpace) {
+    protected void pruneIfNeeded(int neededSpace) {
         if ((mTotalSize + neededSpace) < mMaxCacheSizeInBytes) {
             return;
         }
@@ -288,7 +288,7 @@ public class DiskBasedCache implements Cache {
      * @param key The key to identify the entry by.
      * @param entry The entry to cache.
      */
-    private void putEntry(String key, CacheHeader entry) {
+    protected void putEntry(String key, CacheHeader entry) {
         if (!mEntries.containsKey(key)) {
             mTotalSize += entry.size;
         } else {
@@ -329,7 +329,7 @@ public class DiskBasedCache implements Cache {
      * Handles holding onto the cache headers for an entry.
      */
     // Visible for testing.
-    static class CacheHeader {
+    protected static class CacheHeader {
         /** The size of the data identified by this CacheHeader. (This is not
          * serialized to disk. */
         public long size;
