@@ -5,12 +5,29 @@ import android.graphics.BitmapFactory;
 import android.graphics.Bitmap.Config;
 import cloudtv.util.L;
 
+
+/**
+ * Add by cloudtv so we can make LocalEnabledImageRequest work.
+ * 
+ * @author michaelchristoff
+ *
+ */
 public class Util
 {
+	public static final String TAG = "Util";
+
 	public static Bitmap decodeStorageImage(String url, int height, int width) {
 		return decodeStorageImage(url, height, width, Config.RGB_565);
 	}
 
+	/**
+	 * Taken from ImageRequest.java:doParse():14
+	 * @param url
+	 * @param height
+	 * @param width
+	 * @param decodeConfig
+	 * @return
+	 */
 	public static Bitmap decodeStorageImage(String url, int height, int width, Config decodeConfig) {
 		BitmapFactory.Options decodeOptions = new BitmapFactory.Options();
 		Bitmap bitmap = null;
@@ -31,11 +48,16 @@ public class Util
 			decodeOptions.inJustDecodeBounds = false;
 			// TODO(ficus): Do we need this or is it okay since API 8 doesn't support it?
 			// decodeOptions.inPreferQualityOverSpeed = PREFER_QUALITY_OVER_SPEED;
-			decodeOptions.inSampleSize = findBestSampleSize(actualWidth, actualHeight, desiredWidth, desiredHeight);
-			L.d("Util",
-					"decodeStorageImage-url:" + url + " desiredWidth :" + desiredWidth + " desiredHeight:"
-							+ desiredHeight + " imageSize:"
-							+ findBestSampleSize(actualWidth, actualHeight, desiredWidth, desiredHeight));
+			int sampleSize = findBestSampleSize(actualWidth, actualHeight, desiredWidth, desiredHeight);
+
+			if(isLowMemory()) {// reduce file size in case of OOM
+				sampleSize++;
+				L.i(TAG, "**** Try Handled OutOfMemory for local photos ****");
+			}
+			
+			// L.d(TAG, "[decodeStorageImage]url:" + url + " desiredWidth :" + desiredWidth + " desiredHeight:"
+			// + desiredHeight + " imageSize:" + sampleSize);
+			decodeOptions.inSampleSize = sampleSize;
 			Bitmap tempBitmap = BitmapFactory.decodeFile(url, decodeOptions);
 
 			// If necessary, scale down to the maximal acceptable size.
@@ -50,6 +72,18 @@ public class Util
 		return bitmap;
 	}
 
+	public static boolean isMemoryUsageHigh() {
+		int totalMemeory = (int) (Runtime.getRuntime().totalMemory() / 1024);
+		int maxMemeory = (int) (Runtime.getRuntime().maxMemory() / 1024);
+		int freeMemeory = (int) (Runtime.getRuntime().freeMemory() / 1024);
+		int targetMemory = (int) (maxMemeory * 0.6); // 60% of max memory
+		int usedMemory = totalMemeory - freeMemeory;
+		if(usedMemory > targetMemory) {
+			return true;
+		}
+		return false;
+	}
+
 	public static int findBestSampleSize(int actualWidth, int actualHeight, int desiredWidth, int desiredHeight) {
 		double wr = (double) actualWidth / desiredWidth;
 		double hr = (double) actualHeight / desiredHeight;
@@ -60,6 +94,20 @@ public class Util
 		}
 
 		return (int) n;
+	}
+
+	public static boolean isLowMemory() {
+		int totalMemeory = (int) (Runtime.getRuntime().totalMemory() / 1024);
+		int maxMemeory = (int) (Runtime.getRuntime().maxMemory() / 1024);
+		int freeMemeory = (int) (Runtime.getRuntime().freeMemory() / 1024);
+		int targetMemory = (int) (maxMemeory * 0.6); // use till 60% of max memory
+		int usedMemory = totalMemeory - freeMemeory;
+		if(usedMemory > targetMemory) {
+			L.d(TAG, "TargetMemory :" + targetMemory + " UsedMemory :" + usedMemory + " maxMemory:" + maxMemeory
+					+ " freeMemory :" + freeMemeory + " TotalMemory :" + totalMemeory);
+			return true;
+		}
+		return false;
 	}
 
 	public static int getResizedDimension(int maxPrimary, int maxSecondary, int actualPrimary, int actualSecondary) {
