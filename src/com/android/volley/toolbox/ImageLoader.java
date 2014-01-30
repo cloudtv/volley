@@ -43,7 +43,7 @@ public class ImageLoader
 	protected final RequestQueue mRequestQueue;
 
 	/** Amount of time to wait after first response arrives before delivering all responses. */
-	private int mBatchResponseDelayMs = 100;
+	protected int mBatchResponseDelayMs = 100;
 
 	/** The cache implementation to be used as an L1 cache before calling into volley. */
 	protected final ImageCache mCache;
@@ -315,9 +315,9 @@ public class ImageLoader
 		 * The most relevant bitmap for the container. If the image was in cache, the Holder to use for the final bitmap
 		 * (the one that pairs to the requested URL).
 		 */
-		private Bitmap mBitmap;
+		public Bitmap mBitmap;
 
-		private final ImageListener mListener;
+		public final ImageListener mListener;
 
 		/** The cache key that was associated with the request */
 		private final String mCacheKey;
