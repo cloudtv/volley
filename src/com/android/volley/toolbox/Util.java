@@ -31,6 +31,11 @@ public class Util
 	public static Bitmap decodeStorageImage(String url, int height, int width, Config decodeConfig) {
 		BitmapFactory.Options decodeOptions = new BitmapFactory.Options();
 		Bitmap bitmap = null;
+		
+		// not sure why this wasn't there in the firt place -mc
+        decodeOptions.inPurgeable = true;
+        decodeOptions.inInputShareable = true;
+		
 		if(height == 0 && height == 0 && decodeConfig != null) {
 			decodeOptions.inPreferredConfig = decodeConfig;
 			bitmap = BitmapFactory.decodeFile(url, decodeOptions);
