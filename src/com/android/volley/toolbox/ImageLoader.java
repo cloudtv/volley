@@ -478,11 +478,7 @@ public class ImageLoader
 			mRunnable = new Runnable() {
 				@Override
 				public void run() {
-					// Fix for ConcurrentModificationException
-					List<BatchedImageRequest> requestList = new ArrayList<ImageLoader.BatchedImageRequest>(
-							mBatchedResponses.values());
-					L.d("requestList.size: %s", requestList.size());
-					for (BatchedImageRequest bir : requestList) {
+					for (BatchedImageRequest bir : mBatchedResponses.values()) {
 						for (ImageContainer container : bir.mContainers) {
 							// If one of the callers in the batched request canceled the request
 							// after the response was received but before it was delivered,
