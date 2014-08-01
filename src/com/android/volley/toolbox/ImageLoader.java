@@ -55,13 +55,13 @@ public class ImageLoader
 	protected final HashMap<String, BatchedImageRequest> mInFlightRequests = new HashMap<String, BatchedImageRequest>();
 
 	/** HashMap of the currently pending responses (waiting to be delivered). */
-	private final HashMap<String, BatchedImageRequest> mBatchedResponses = new HashMap<String, BatchedImageRequest>();
+	protected final HashMap<String, BatchedImageRequest> mBatchedResponses = new HashMap<String, BatchedImageRequest>();
 
 	/** Handler to the main thread. */
-	private final Handler mHandler = new Handler(Looper.getMainLooper());
+	protected final Handler mHandler = new Handler(Looper.getMainLooper());
 
 	/** Runnable for in-flight response delivery. */
-	private Runnable mRunnable;
+	protected Runnable mRunnable;
 
 	/**
 	 * Simple cache adapter interface. If provided to the ImageLoader, it will be used as an L1 cache before dispatch to
@@ -395,16 +395,16 @@ public class ImageLoader
 	public static class BatchedImageRequest
 	{
 		/** The request being tracked */
-		private final Request<?> mRequest;
+		protected final Request<?> mRequest;
 
 		/** The result of the request being tracked by this item */
-		private Bitmap mResponseBitmap;
+		public Bitmap mResponseBitmap;
 
 		/** Error if one occurred for this response */
-		private VolleyError mError;
+		protected VolleyError mError;
 
 		/** List of all of the active ImageContainers that are interested in the request */
-		private final LinkedList<ImageContainer> mContainers = new LinkedList<ImageContainer>();
+		public final LinkedList<ImageContainer> mContainers = new LinkedList<ImageContainer>();
 
 		/**
 		 * Constructs a new BatchedImageRequest object
@@ -467,7 +467,7 @@ public class ImageLoader
 	 * @param error
 	 *            The volley error associated with the request (if applicable).
 	 */
-	private void batchResponse(String cacheKey, BatchedImageRequest request) {
+	protected void batchResponse(String cacheKey, BatchedImageRequest request) {
 		mBatchedResponses.put(cacheKey, request);
 		// If we don't already have a batch delivery runnable in flight, make a new one.
 		// Note that this will be used to deliver responses to all callers in mBatchedResponses.
