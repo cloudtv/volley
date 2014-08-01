@@ -12,23 +12,25 @@
  */
 package com.android.volley.toolbox;
 
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.os.Handler;
 import android.os.Looper;
 import android.widget.ImageView;
+import cloudtv.util.L;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response.ErrorListener;
 import com.android.volley.Response.Listener;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.ImageRequest;
 import com.android.volley.toolbox.NetworkImageView.OnImageLoadListener;
-
-import java.lang.ref.WeakReference;
-import java.util.HashMap;
-import java.util.LinkedList;
 
 /**
  * Helper that handles loading and caching images from remote URLs.
@@ -298,7 +300,7 @@ public class ImageLoader
 		if(request != null) {
 			// Set the error for this request
 			request.setError(error);
-			
+
 			// Send the batched response
 			batchResponse(cacheKey, request);
 		}
@@ -310,7 +312,7 @@ public class ImageLoader
 	public static class ImageContainer
 	{
 		protected WeakReference<ImageLoader> mmParent;
-		
+
 		/**
 		 * The most relevant bitmap for the container. If the image was in cache, the Holder to use for the final bitmap
 		 * (the one that pairs to the requested URL).
@@ -335,7 +337,8 @@ public class ImageLoader
 		 * @param cacheKey
 		 *            The cache key that identifies the requested URL for this container.
 		 */
-		public ImageContainer(ImageLoader parent, Bitmap bitmap, String requestUrl, String cacheKey, ImageListener listener) {
+		public ImageContainer(ImageLoader parent, Bitmap bitmap, String requestUrl, String cacheKey,
+				ImageListener listener) {
 			mmParent = new WeakReference<ImageLoader>(parent);
 			mBitmap = bitmap;
 			mRequestUrl = requestUrl;
@@ -351,7 +354,7 @@ public class ImageLoader
 				return;
 			}
 			ImageLoader parent = mmParent.get();
-			if(parent == null){
+			if(parent == null) {
 				return;
 			}
 
@@ -475,7 +478,11 @@ public class ImageLoader
 			mRunnable = new Runnable() {
 				@Override
 				public void run() {
-					for (BatchedImageRequest bir : mBatchedResponses.values()) {
+					// Fix for ConcurrentModificationException
+					List<BatchedImageRequest> requestList = new ArrayList<ImageLoader.BatchedImageRequest>(
+							mBatchedResponses.values());
+					L.d("requestList.size: %s", requestList.size());
+					for (BatchedImageRequest bir : requestList) {
 						for (ImageContainer container : bir.mContainers) {
 							// If one of the callers in the batched request canceled the request
 							// after the response was received but before it was delivered,
