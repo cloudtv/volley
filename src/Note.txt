@@ -49,4 +49,6 @@ Code changes:
 
 6)Use BasicNetwork to CloudtvNetwork in Volley
 
-7)Add cancleRequest to the bottom of the NetworImageView 
+7)Add cancleRequest to the bottom of the NetworImageView
+
+8)BasicNetwork.java to add Image redirect logic in perform request method 
