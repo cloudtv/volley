@@ -51,4 +51,4 @@ Code changes:
 
 7)Add cancleRequest to the bottom of the NetworImageView
 
-8)BasicNetwork.java to add Image redirect logic in perform request method 
+8)BasicNetwork.java to add Image redirect logic in perform request method
