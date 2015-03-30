@@ -16,11 +16,6 @@
 
 package com.android.volley;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.util.Collections;
-import java.util.Map;
-
 import android.net.TrafficStats;
 import android.net.Uri;
 import android.os.Handler;
@@ -30,6 +25,11 @@ import android.text.TextUtils;
 
 import com.android.volley.VolleyLog.MarkerLog;
 import com.android.volley.toolbox.Util;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.util.Collections;
+import java.util.Map;
 
 /**
  * Base class for all network requests.
@@ -61,7 +61,7 @@ public abstract class Request<T> implements Comparable<Request<T>> {
     private final int mMethod;
 
     /** URL of this request. */
-    private final String mUrl;
+    protected String mUrl;
 
     /** Default tag for {@link TrafficStats}. */
     private final int mDefaultTrafficStatsTag;
@@ -131,6 +131,9 @@ public abstract class Request<T> implements Comparable<Request<T>> {
 			mDefaultTrafficStatsTag = 0;
 		else
 			mDefaultTrafficStatsTag = TextUtils.isEmpty(url) ? 0 : Uri.parse(url).getHost().hashCode();
+    }
+    public void setUrl(String url){
+        mUrl = url;
     }
 
     /**
