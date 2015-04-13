@@ -12,8 +12,6 @@
  */
 package com.android.volley.toolbox;
 
-import java.lang.ref.WeakReference;
-
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
@@ -25,6 +23,8 @@ import com.android.volley.DefaultImageError;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader.ImageContainer;
 import com.android.volley.toolbox.ImageLoader.ImageListener;
+
+import java.lang.ref.WeakReference;
 
 /**
  * Handles fetching an image from a URL as well as the life-cycle of the associated request.
@@ -52,6 +52,7 @@ public class NetworkImageView extends ImageView
 	private ImageContainer mImageContainer;
 
 	protected boolean mIsDrawable;
+	protected boolean mIsBitmap;
 
 	public NetworkImageView(Context context) {
 		this(context, null);
@@ -208,10 +209,11 @@ public class NetworkImageView extends ImageView
 
 			if(response.getBitmap() != null) {
 				parent.setImageBitmap(response.getBitmap());
+				parent.mIsBitmap = true;
 				if(parent.mImageListener != null) {
 					parent.mImageListener.onImageLoaded();
 				}
-			} else if(parent.mDefaultImageId != 0) {
+			} else if(parent.mDefaultImageId != 0 && !parent.mIsBitmap) {
 				parent.setImageResource(parent.mDefaultImageId);
 				if(parent.mImageListener != null) {
 					parent.mImageListener.onError(new DefaultImageError());

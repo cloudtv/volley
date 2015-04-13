@@ -101,6 +101,7 @@ public class NetworkDispatcher extends Thread {
                     TrafficStats.setThreadStatsTag(request.getTrafficStatsTag());
                 }
 
+                String cacheKey = request.getCacheKey();
                 // Perform the network request.
                 NetworkResponse networkResponse = mNetwork.performRequest(request);
                 request.addMarker("network-http-complete");
@@ -119,7 +120,7 @@ public class NetworkDispatcher extends Thread {
                 // Write to cache if applicable.
                 // TODO: Only update cache metadata instead of entire record for 304s.
                 if (request.shouldCache() && response.cacheEntry != null) {
-                    mCache.put(request.getCacheKey(), response.cacheEntry);
+                    mCache.put(cacheKey, response.cacheEntry);
                     request.addMarker("network-cache-written");
                 }
 
