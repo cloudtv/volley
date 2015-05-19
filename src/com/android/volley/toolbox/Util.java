@@ -124,7 +124,7 @@ public class Util
 		// If primary is unspecified, scale primary to match secondary's scaling ratio.
 		if(maxPrimary == 0) {
 			double ratio = (double) maxSecondary / (double) actualSecondary;
-			return (int) (actualPrimary * ratio);
+			return (int) Math.ceil(actualPrimary * ratio);
 		}
 
 		if(maxSecondary == 0) {
@@ -134,7 +134,7 @@ public class Util
 		double ratio = (double) actualSecondary / (double) actualPrimary;
 		int resized = maxPrimary;
 		if(resized * ratio > maxSecondary) {
-			resized = (int) (maxSecondary / ratio);
+			resized = (int) Math.ceil(maxSecondary / ratio);
 		}
 		return resized;
 	}
