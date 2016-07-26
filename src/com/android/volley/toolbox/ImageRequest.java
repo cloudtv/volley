@@ -147,43 +147,43 @@ public class ImageRequest extends Request<Bitmap> {
         // not sure why this wasn't there in the firt place -mc
         decodeOptions.inPurgeable = true;
         decodeOptions.inInputShareable = true;
-        
-        if (mMaxWidth == 0 && mMaxHeight == 0) {
-            decodeOptions.inPreferredConfig = mDecodeConfig;
-            bitmap = BitmapFactory.decodeByteArray(data, 0, data.length, decodeOptions);
-        } else {
-            // If we have to resize this image, first get the natural bounds.
-            decodeOptions.inJustDecodeBounds = true;
-            BitmapFactory.decodeByteArray(data, 0, data.length, decodeOptions);
-            int actualWidth = decodeOptions.outWidth;
-            int actualHeight = decodeOptions.outHeight;
-
-            // Then compute the dimensions we would ideally like to decode to.
-            int desiredWidth = getResizedDimension(mMaxWidth, mMaxHeight,
-                    actualWidth, actualHeight);
-            int desiredHeight = getResizedDimension(mMaxHeight, mMaxWidth,
-                    actualHeight, actualWidth);
-
-            // Decode to the nearest power of two scaling factor.
-            decodeOptions.inJustDecodeBounds = false;
-            // TODO(ficus): Do we need this or is it okay since API 8 doesn't support it?
-            // decodeOptions.inPreferQualityOverSpeed = PREFER_QUALITY_OVER_SPEED;
-            decodeOptions.inSampleSize =
-                findBestSampleSize(actualWidth, actualHeight, desiredWidth, desiredHeight);
-            Bitmap tempBitmap =
-                BitmapFactory.decodeByteArray(data, 0, data.length, decodeOptions);
-
-            // If necessary, scale down to the maximal acceptable size.
-            if (tempBitmap != null && (tempBitmap.getWidth() > desiredWidth ||
-                    tempBitmap.getHeight() > desiredHeight)) {
-                bitmap = Bitmap.createScaledBitmap(tempBitmap,
-                        desiredWidth, desiredHeight, true);
-                tempBitmap.recycle();
+        if (data != null) {
+            if (mMaxWidth == 0 && mMaxHeight == 0) {
+                decodeOptions.inPreferredConfig = mDecodeConfig;
+                bitmap = BitmapFactory.decodeByteArray(data, 0, data.length, decodeOptions);
             } else {
-                bitmap = tempBitmap;
+                // If we have to resize this image, first get the natural bounds.
+                decodeOptions.inJustDecodeBounds = true;
+                BitmapFactory.decodeByteArray(data, 0, data.length, decodeOptions);
+                int actualWidth = decodeOptions.outWidth;
+                int actualHeight = decodeOptions.outHeight;
+
+                // Then compute the dimensions we would ideally like to decode to.
+                int desiredWidth = getResizedDimension(mMaxWidth, mMaxHeight,
+                        actualWidth, actualHeight);
+                int desiredHeight = getResizedDimension(mMaxHeight, mMaxWidth,
+                        actualHeight, actualWidth);
+
+                // Decode to the nearest power of two scaling factor.
+                decodeOptions.inJustDecodeBounds = false;
+                // TODO(ficus): Do we need this or is it okay since API 8 doesn't support it?
+                // decodeOptions.inPreferQualityOverSpeed = PREFER_QUALITY_OVER_SPEED;
+                decodeOptions.inSampleSize =
+                        findBestSampleSize(actualWidth, actualHeight, desiredWidth, desiredHeight);
+                Bitmap tempBitmap =
+                        BitmapFactory.decodeByteArray(data, 0, data.length, decodeOptions);
+
+                // If necessary, scale down to the maximal acceptable size.
+                if (tempBitmap != null && (tempBitmap.getWidth() > desiredWidth ||
+                        tempBitmap.getHeight() > desiredHeight)) {
+                    bitmap = Bitmap.createScaledBitmap(tempBitmap,
+                            desiredWidth, desiredHeight, true);
+                    tempBitmap.recycle();
+                } else {
+                    bitmap = tempBitmap;
+                }
             }
         }
-
         if (bitmap == null) {
             return Response.error(new ParseError(response));
         } else {
